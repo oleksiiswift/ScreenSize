@@ -64,8 +64,13 @@ extension UIDevice {
 	
 	var display: ScreenType {
 		guard userInterfaceIdiom == .phone else { return .unspecified }
-		guard let window = (UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap { $0.windows }.first { $0.isKeyWindow}) else { return .unspecified}
-		
+		guard let window = UIApplication.shared.connectedScenes
+			.filter({$0.activationState == .foregroundActive})
+			.map({$0 as? UIWindowScene})
+			.compactMap({$0})
+			.first?.windows
+			.filter({$0.isKeyWindow}).first else { return .unspecified}
+	
 		switch window.safeAreaInsets.top {
 			case let inset where inset >= 51: return .island
 			case let inset where inset >= 44: return .notched
